@@ -132,6 +132,22 @@ int main(int argc, char * argv[])
         LOG(D) << "Loading PBA image " << argv[opts.pbafile] << " to " << opts.device;
         return d->loadPBA(argv[opts.password], argv[opts.pbafile]);
 		break;
+case sedutiloption::setDataStoreReadUser:
+        LOG(D) << "Set DataStore Read User " << argv[opts.userid] << " to " << opts.device;
+        return d->setDataStoreReadUser(argv[opts.password], argv[opts.userid]);
+		break;
+	case sedutiloption::setDataStoreWriteUser:
+        LOG(D) << "Set DataStore Write User " << argv[opts.userid] << " to " << opts.device;
+        return d->setDataStoreWriteUser(argv[opts.password], argv[opts.userid]);
+		break;
+	case sedutiloption::setDataStore:
+        LOG(D) << "Writing DataStore " << argv[opts.pbafile] << " to " << opts.device;
+        return d->setDataStore(argv[opts.password], argv[opts.userid], argv[opts.pbafile]);
+		break;
+	case sedutiloption::getDataStore:
+        LOG(D) << "Reading DataStore " << argv[opts.pbafile] << " to " << opts.device;
+        return d->getDataStore(argv[opts.password], argv[opts.userid], argv[opts.pbafile]);
+		break;
 	case sedutiloption::setLockingRange:
         LOG(D) << "Setting Locking Range " << (uint16_t) opts.lockingrange << " " << (uint16_t) opts.lockingstate;
         return d->setLockingRange(opts.lockingrange, opts.lockingstate, argv[opts.password]);
@@ -193,7 +209,7 @@ int main(int argc, char * argv[])
 		LOG(D) << "Setting MBREnable " << (uint16_t)opts.mbrstate;
 		return (d->setMBREnable(opts.mbrstate, argv[opts.password]));
 		break;
-	case sedutiloption::enableuser:
+	case sedutiloption::enableUser:
         LOG(D) << "Performing enable user for user " << argv[opts.userid];
         return d->enableUser(argv[opts.password], argv[opts.userid]);
         break;
