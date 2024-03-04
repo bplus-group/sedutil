@@ -174,12 +174,12 @@ DtaCommand::addToken(OPAL_TINY_ATOM token)
 }
 
 void
-DtaCommand::addToken(OPAL_UID token)
+DtaCommand::addToken(OPAL_UID token, OPAL_UID_SIZE size)
 {
     LOG(D1) << "Entering DtaCommand::addToken(OPAL_UID)";
-    cmdbuf[bufferpos++] = OPAL_SHORT_ATOM::BYTESTRING8;
-    memcpy(&cmdbuf[bufferpos], &OPALUID[token][0], 8);
-    bufferpos += 8;
+    cmdbuf[bufferpos++] = size==OPAL_UID_SIZE::HALF_UID?OPAL_SHORT_ATOM::BYTESTRING4:OPAL_SHORT_ATOM::BYTESTRING8;
+    memcpy(&cmdbuf[bufferpos], &OPALUID[token][0], size==OPAL_UID_SIZE::HALF_UID?4:8);
+    bufferpos += size==OPAL_UID_SIZE::HALF_UID?4:8;
 }
 
 void

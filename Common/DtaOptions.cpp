@@ -182,12 +182,19 @@ uint8_t DtaOptions(int argc, char * argv[], DTA_OPTIONS * opts)
 		BEGIN_OPTION(loadPBAimage, 3) OPTION_IS(password) OPTION_IS(pbafile) 
 			OPTION_IS(device) END_OPTION
 		BEGIN_OPTION(revertTPer, 2) OPTION_IS(password) OPTION_IS(device) END_OPTION
+BEGIN_OPTION(setDataStoreReadUser, 3) OPTION_IS(password) OPTION_IS(userid) OPTION_IS(device) END_OPTION
+		BEGIN_OPTION(setDataStoreWriteUser, 3) OPTION_IS(password) OPTION_IS(userid) OPTION_IS(device) END_OPTION
+		BEGIN_OPTION(setDataStore, 4) OPTION_IS(userid) OPTION_IS(password) OPTION_IS(pbafile) 
+			OPTION_IS(device) END_OPTION
+		BEGIN_OPTION(getDataStore, 4) OPTION_IS(userid) OPTION_IS(password) OPTION_IS(pbafile) 
+			OPTION_IS(device) END_OPTION
+		BEGIN_OPTION(revertTPer, 2) OPTION_IS(password) OPTION_IS(device) END_OPTION
 		BEGIN_OPTION(revertNoErase, 2) OPTION_IS(password) OPTION_IS(device) END_OPTION
 		BEGIN_OPTION(PSIDrevert, 2) OPTION_IS(password) OPTION_IS(device) END_OPTION
 		BEGIN_OPTION(PSIDrevertAdminSP, 2) OPTION_IS(password) OPTION_IS(device) END_OPTION
 		BEGIN_OPTION(yesIreallywanttoERASEALLmydatausingthePSID, 2) OPTION_IS(password) 
 			OPTION_IS(device) END_OPTION
-		BEGIN_OPTION(enableuser, 2) OPTION_IS(password) OPTION_IS(userid) 
+		BEGIN_OPTION(enableUser, 3) OPTION_IS(password) OPTION_IS(userid) 
 			OPTION_IS(device) END_OPTION
 		BEGIN_OPTION(activateLockingSP, 2) OPTION_IS(password) OPTION_IS(device) END_OPTION
 		BEGIN_OPTION(activateLockingSP_SUM, 3)

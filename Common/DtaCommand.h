@@ -56,7 +56,7 @@ public:
     /** Add a Token to the bytstream of type OPL_TINY ATOM. */
     void addToken(OPAL_TINY_ATOM token);
     /** Add a Token to the bytstream of from the OPALUID array. */
-    void addToken(OPAL_UID token);
+    void addToken(OPAL_UID token, OPAL_UID_SIZE=OPAL_UID_SIZE::FULL_UID);
     /** Add a Token to the bytstream of type c-string */
     void addToken(const char * bytestring);
     /** Add a Token to the bytstream of type vector<uint8_t>.

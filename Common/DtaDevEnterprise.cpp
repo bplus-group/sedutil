@@ -982,6 +982,38 @@ uint8_t DtaDevEnterprise::eraseLockingRange(uint8_t lockingrange, char * passwor
 	LOG(D1) << "Exiting DtaDevEnterprise::eraseLockingRange";
 	return 0;
 }
+uint8_t DtaDevEnterprise::setDataStoreWriteUser(char * password, char * userid) {
+	LOG(D1) << "Entering DtaDevEnterprise::setDataStoreWriteUser() " << dev;
+	if (password == NULL) { LOG(D4) << "Referencing formal parameters "; }
+	LOG(I) << "setDataStoreWriteUser is not implemented.  It is not a mandatory part of  ";
+	LOG(I) << "the enterprise SSC ";
+	LOG(D1) << "Exiting DtaDevEnterprise::setDataStoreWriteUser()";
+	return DTAERROR_INVALID_PARAMETER;
+}
+uint8_t DtaDevEnterprise::setDataStoreReadUser(char * password, char * userid) {
+	LOG(D1) << "Entering DtaDevEnterprise::setDataStoreReadUser() " << dev;
+	if (password == NULL) { LOG(D4) << "Referencing formal parameters "; }
+	LOG(I) << "setDataStoreReadUser is not implemented.  It is not a mandatory part of  ";
+	LOG(I) << "the enterprise SSC ";
+	LOG(D1) << "Exiting DtaDevEnterprise::setDataStoreReadUser()";
+	return DTAERROR_INVALID_PARAMETER;
+}
+uint8_t DtaDevEnterprise::setDataStore(char * password, char * userid, char * filename) {
+	LOG(D1) << "Entering DtaDevEnterprise::setDataStore()" << filename << " " << dev;
+	if (password == NULL) { LOG(D4) << "Referencing formal parameters " << filename; }
+	LOG(I) << "setDataStore is not implemented.  It is not a mandatory part of  ";
+	LOG(I) << "the enterprise SSC ";
+	LOG(D1) << "Exiting DtaDevEnterprise::setDataStore()";
+	return DTAERROR_INVALID_PARAMETER;
+}
+uint8_t DtaDevEnterprise::getDataStore(char * password, char * userid, char * filename) {
+	LOG(D1) << "Entering DtaDevEnterprise::getDataStore()" << filename << " " << dev;
+	if (password == NULL) { LOG(D4) << "Referencing formal parameters " << filename; }
+	LOG(I) << "getDataStore is not implemented.  It is not a mandatory part of  ";
+	LOG(I) << "the enterprise SSC ";
+	LOG(D1) << "Exiting DtaDevEnterprise::getDataStore()";
+	return DTAERROR_INVALID_PARAMETER;
+}
 uint8_t DtaDevEnterprise::loadPBA(char * password, char * filename) {
 	LOG(D1) << "Entering DtaDevEnterprise::loadPBAimage()" << filename << " " << dev;
 	if (password == NULL) { LOG(D4) << "Referencing formal parameters " << filename; }

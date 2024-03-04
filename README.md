@@ -1,6 +1,6 @@
 ![alt tag](https://avatars0.githubusercontent.com/u/13870012?v=3&s=200)
 
-Intel and AMD Ryzen: This SEDutil fork includes support for intel and AMD Ryzen systems with SHA-512 password authentication
+Intel, AMD and ARM: This SEDutil fork includes support for Intel, AMD and ARM systems with SHA-512 password authentication
 
 Note: This version of SEDutil is not compatible with SHA-1 versions of SEDutil
 
@@ -64,7 +64,8 @@ Unique to this repo are the following modifications:
 
 * SHA512 password hashing vs SHA1 on original SEDutil
 * Compatibile with AMD Ryzen and AMD Ryzen mobile systems
-
+* Access to DataStore
+* User Management
 
 ## Build Process
 

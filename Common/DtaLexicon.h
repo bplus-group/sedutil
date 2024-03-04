@@ -65,6 +65,11 @@ static const uint8_t OPALUID[][8]{
 		{ 0x00, 0x00, 0x04, 0x0E, 0xff, 0xff, 0xff, 0xff }, /** Half-UID – Boolean ACE */
         // special value for omitted optional parameter
         { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, /**< HEXFF for omitted */
+
+    { 0x00, 0x00, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00 }, /**< DataStore */
+    { 0x00, 0x00, 0x00, 0x08, 0x00, 0x03, 0xFC, 0x01 }, /**< ACE_DataStore_Set_All UID */
+    { 0x00, 0x00, 0x00, 0x08, 0x00, 0x03, 0xFC, 0x00 }, /**< ACE_DataStore_Get_All UID */
+    { 0x00, 0x00, 0x00, 0x0B, 0x00, 0x03, 0x00, 0x01 }, /**< User1 CPIN UID */
 };
 /** Enum to index OPALUID array */
 typedef enum _OPAL_UID {
@@ -104,6 +109,11 @@ typedef enum _OPAL_UID {
     OPAL_HALF_UID_BOOLEAN_ACE,
     // omitted optional parameter
     OPAL_UID_HEXFF,
+
+    OPAL_DATASTORE,
+    OPAL_DATASTORE_SET_ALL_UID,
+    OPAL_DATASTORE_GET_ALL_UID,
+    OPAL_C_PIN_USER1_UID,
 } OPAL_UID;
 
 /** TCG Storage SSC Methods.
@@ -125,6 +135,7 @@ static const uint8_t OPALMETHOD[][8]{
     { 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x1c}, /**< Authenticate */
     { 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x06, 0x01}, /**< Random */
 	{ 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x08, 0x03 }, /**< Erase */
+
 };
 /** Enum for indexing the OPALMETHOD array */
 typedef enum _OPAL_METHOD {
@@ -195,6 +206,8 @@ typedef enum _OPAL_TOKEN {
     ENDTRANSACTON = 0xfC,
     EMPTYATOM = 0xff,
     WHERE = 0x00,
+
+    AUTH_TABLE_ENABLE = 0x05,
 } OPAL_TOKEN;
 
 /** Useful tiny atoms.
@@ -264,3 +277,8 @@ typedef enum _OPALSTATUSCODE {
     AUTHORITY_LOCKED_OUT = 0x12,
     FAIL = 0x3f,
 } OPALSTATUSCODE;
+
+typedef enum _OPAL_UID_SIZE {
+    HALF_UID=OPAL_SHORT_ATOM::BYTESTRING4,
+    FULL_UID=OPAL_SHORT_ATOM::BYTESTRING8,
+} OPAL_UID_SIZE;

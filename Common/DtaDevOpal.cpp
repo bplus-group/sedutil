@@ -37,6 +37,15 @@ along with sedutil.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+#pragma pack(1)
+struct OpalDataStoreHeaderV1 {
+	uint8_t version;
+	uint8_t hdr_size;
+	uint8_t tag[6];
+	uint32_t content_size;
+};
+#pragma pack()
+
 DtaDevOpal::DtaDevOpal()
 {
 }
@@ -663,7 +672,13 @@ uint8_t DtaDevOpal::getAuth4User(char * userid, uint8_t uidorcpin, std::vector<u
 		userData.push_back(0x0b);
 	else
 		userData.push_back(0x09);
-	if (!memcmp("User", userid, 4)) {
+	if (!memcmp("Anybody", userid, 7)) {
+		userData.push_back(0x00);
+		userData.push_back(0x00);
+		userData.push_back(0x00);
+		userData.push_back(0x01);
+	}
+	else if (!memcmp("User", userid, 4)) {
 		userData.push_back(0x00);
 		userData.push_back(0x03);
 		userData.push_back(0x00);
@@ -1117,6 +1132,336 @@ uint8_t DtaDevOpal::revertTPer(char * password, uint8_t PSID, uint8_t AdminSP)
 	delete cmd;
 	delete session;
 	LOG(D1) << "Exiting DtaDevOpal::revertTPer()";
+	return 0;
+}
+uint8_t DtaDevOpal::setDataStoreWriteUser(char * password, char * userid) {
+	LOG(D1) << "Entering DtaDevOpal::setDataStoreWriteUser()" << dev;
+	uint8_t lastRC;
+	std::vector<uint8_t> userCPIN;
+	DtaCommand *cmd = new DtaCommand();
+	if (NULL == cmd) {
+		LOG(E) << "Unable to create command object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}	
+
+	session = new DtaSession(this);
+	if (NULL == session) {
+		LOG(E) << "Unable to create session object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}
+	if ((lastRC = session->start(OPAL_UID::OPAL_LOCKINGSP_UID, password, OPAL_UID::OPAL_ADMIN1_UID)) != 0) {
+		delete cmd;
+		delete session;
+		return lastRC;
+	}
+	if ((lastRC = getAuth4User(userid, 0, userCPIN)) != 0) {
+		LOG(E) << "Unable to find user " << userid << " in Authority Table";
+		delete session;
+		return lastRC;
+	}
+	LOG(I) << "setDataStoreWriteUser on " << dev;
+
+	/* add write access for user1 */
+	cmd->reset(OPAL_UID::OPAL_DATASTORE_SET_ALL_UID, OPAL_METHOD::SET);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_TOKEN::VALUES);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_TOKEN::OPAL_BOOLEAN_EXPR);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_UID::OPAL_HALF_UID_AUTHORITY_OBJ_REF, OPAL_UID_SIZE::HALF_UID);
+	cmd->addToken(userCPIN);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->complete();
+	if ((lastRC = session->sendCommand(cmd, response)) != 0) {
+		delete cmd;
+		delete session;
+		return lastRC;
+	}
+	delete cmd;
+	delete session;
+	LOG(I) << "setDataStoreWriteUser for " << dev;
+	LOG(D1) << "Exiting DtaDevOpal::setDataStoreWriteUser()";
+	return 0;
+}
+uint8_t DtaDevOpal::setDataStoreReadUser(char * password, char * userid) {
+	LOG(D1) << "Entering DtaDevOpal::setDataStoreReadUser()" << dev;
+	uint8_t lastRC;
+	std::vector<uint8_t> userCPIN;
+	DtaCommand *cmd = new DtaCommand();
+	if (NULL == cmd) {
+		LOG(E) << "Unable to create command object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}	
+
+	session = new DtaSession(this);
+	if (NULL == session) {
+		LOG(E) << "Unable to create session object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}
+	if ((lastRC = session->start(OPAL_UID::OPAL_LOCKINGSP_UID, password, OPAL_UID::OPAL_ADMIN1_UID)) != 0) {
+		delete cmd;
+		delete session;
+		return lastRC;
+	}
+	if ((lastRC = getAuth4User(userid, 0, userCPIN)) != 0) {
+		LOG(E) << "Unable to find user " << userid << " in Authority Table";
+		delete session;
+		return lastRC;
+	}
+	LOG(I) << "setDataStoreReadUser on " << dev;
+
+	/* add write access for user1 */
+	cmd->reset(OPAL_UID::OPAL_DATASTORE_GET_ALL_UID, OPAL_METHOD::SET);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_TOKEN::VALUES);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_TOKEN::OPAL_BOOLEAN_EXPR);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_UID::OPAL_HALF_UID_AUTHORITY_OBJ_REF, OPAL_UID_SIZE::HALF_UID);
+	cmd->addToken(userCPIN);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->complete();
+	if ((lastRC = session->sendCommand(cmd, response)) != 0) {
+		delete cmd;
+		delete session;
+		return lastRC;
+	}
+	delete cmd;
+	delete session;
+	LOG(I) << "setDataStoreReadUser for " << dev;
+	LOG(D1) << "Exiting DtaDevOpal::setDataStoreReadUser()";
+	return 0;
+}
+uint8_t DtaDevOpal::setDataStore(char * password, char * userid, char * filename) {
+	LOG(D1) << "Entering DtaDevOpal::setDataStore()" << filename << " " << dev;
+	uint8_t lastRC;
+	std::vector<uint8_t> userCPIN;
+	uint32_t blockSize;
+	uint32_t filepos = 0;
+	uint32_t eofpos;
+	ifstream pbafile;
+	(MAX_BUFFER_LENGTH > tperMaxPacket) ? blockSize = tperMaxPacket : blockSize = MAX_BUFFER_LENGTH;
+	if (blockSize > (tperMaxToken - 4)) blockSize = tperMaxToken - 4;
+	vector <uint8_t> buffer, lengthtoken;
+	blockSize -= sizeof(OPALHeader) + 50;  // packet overhead
+	blockSize=256;
+	buffer.resize(blockSize);
+	pbafile.open(filename, ios::in | ios::binary);
+	if (!pbafile) {
+		LOG(E) << "Unable to open DataStore file " << filename;
+		return DTAERROR_OPEN_ERR;
+	}
+	pbafile.seekg(0, pbafile.end);
+	eofpos = (uint32_t) pbafile.tellg(); 
+	pbafile.seekg(0, pbafile.beg);
+
+	DtaCommand *cmd = new DtaCommand();
+	if (NULL == cmd) {
+		LOG(E) << "Unable to create command object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}
+	if ((lastRC = getAuth4User(userid, 0, userCPIN)) != 0) {
+		LOG(E) << "Unable to find user " << userid << " in Authority Table";
+		delete cmd;
+		return lastRC;
+	}
+	session = new DtaSession(this);
+	if (NULL == session) {
+		LOG(E) << "Unable to create session object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}
+	if ((lastRC = session->start(OPAL_UID::OPAL_LOCKINGSP_UID, password, userCPIN)) != 0) {
+		delete cmd;
+		delete session;
+		pbafile.close();
+		return lastRC;
+	}
+	LOG(I) << "Writing DataStore to " << dev;
+	
+	struct OpalDataStoreHeaderV1* pFileBuf=(struct OpalDataStoreHeaderV1*)malloc(sizeof(struct OpalDataStoreHeaderV1)+eofpos);
+	if(!pFileBuf) {
+		delete cmd;
+		delete session;
+		pbafile.close();
+		return DTAERROR_OPEN_ERR;
+	}
+	pFileBuf->version=1;
+	pFileBuf->hdr_size=sizeof(*pFileBuf);
+	pFileBuf->tag[0]='b';
+	pFileBuf->tag[1]='p';
+	pFileBuf->tag[2]='l';
+	pFileBuf->tag[3]='e';
+	pFileBuf->tag[4]='n';
+	pFileBuf->tag[5]='c';
+	pFileBuf->content_size=eofpos;
+	pbafile.read((char *)(pFileBuf+1), eofpos);
+	pbafile.close();
+	eofpos+=sizeof(struct OpalDataStoreHeaderV1);
+
+	while(filepos < eofpos) {
+
+		if ((eofpos - filepos) < blockSize) {
+			blockSize = eofpos - filepos; // handle a short last block
+			buffer.resize(blockSize);
+		}
+		lengthtoken.clear();
+		lengthtoken.push_back(0xe2);
+		lengthtoken.push_back((uint8_t) ((blockSize >> 16) & 0x000000ff));
+		lengthtoken.push_back((uint8_t)((blockSize >> 8) & 0x000000ff));
+		lengthtoken.push_back((uint8_t)(blockSize & 0x000000ff));
+		memcpy((char *)buffer.data(), &((char*)pFileBuf)[filepos], blockSize );
+		
+		cmd->reset(OPAL_UID::OPAL_DATASTORE, OPAL_METHOD::SET);
+		cmd->addToken(OPAL_TOKEN::STARTLIST);
+		cmd->addToken(OPAL_TOKEN::STARTNAME);
+		cmd->addToken(OPAL_TOKEN::WHERE);
+		cmd->addToken(filepos);
+		cmd->addToken(OPAL_TOKEN::ENDNAME);
+		cmd->addToken(OPAL_TOKEN::STARTNAME);
+		cmd->addToken(OPAL_TOKEN::VALUES);
+		cmd->addToken(lengthtoken);
+		cmd->addToken(buffer);
+		cmd->addToken(OPAL_TOKEN::ENDNAME);
+		cmd->addToken(OPAL_TOKEN::ENDLIST);
+		cmd->complete();
+		if ((lastRC = session->sendCommand(cmd, response)) != 0) {
+			delete cmd;
+			delete session;
+			return lastRC;
+		}
+		filepos += blockSize;
+		cout << filepos << " of " << eofpos << " " << (uint16_t) (((float)filepos/(float)eofpos) * 100) << "% blk=" << blockSize << " \r";
+	}
+	cout << "\n";
+	delete cmd;
+	delete session;
+	pbafile.close();
+	LOG(I) << "DataStore  " << filename << " written to " << dev;
+	LOG(D1) << "Exiting DtaDevOpal::setDataStore()";
+	return 0;
+}
+uint8_t DtaDevOpal::getDataStore(char * password, char * userid, char * filename) {
+	LOG(D1) << "Entering DtaDevOpal::getDataStore()" << filename << " " << dev;
+	uint8_t lastRC;
+	std::vector<uint8_t> userCPIN;
+	uint32_t blockSize;
+	uint32_t filepos = 0, eofpos;
+	ofstream pbafile;
+	(MAX_BUFFER_LENGTH > tperMaxPacket) ? blockSize = tperMaxPacket : blockSize = MAX_BUFFER_LENGTH;
+	if (blockSize > (tperMaxToken - 4)) blockSize = tperMaxToken - 4;
+	vector <uint8_t> buffer, lengthtoken;
+	blockSize -= sizeof(OPALHeader) + 50;  // packet overhead
+	
+	buffer.resize(blockSize);
+	pbafile.open(filename, ios::out | ios::binary);
+	if (!pbafile) {
+		LOG(E) << "Unable to open DataStore file " << filename;
+		return DTAERROR_OPEN_ERR;
+	}
+
+	DtaCommand *cmd = new DtaCommand();
+	if (NULL == cmd) {
+		LOG(E) << "Unable to create command object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}
+	if ((lastRC = getAuth4User(userid, 0, userCPIN)) != 0) {
+		LOG(E) << "Unable to find user " << userid << " in Authority Table";
+		delete cmd;
+		return lastRC;
+	}
+	session = new DtaSession(this);
+	if (NULL == session) {
+		LOG(E) << "Unable to create session object ";
+		return DTAERROR_OBJECT_CREATE_FAILED;
+	}
+	if ((lastRC = session->start(OPAL_UID::OPAL_LOCKINGSP_UID, password, userCPIN)) != 0) {
+		delete cmd;
+		delete session;
+		pbafile.close();
+		return lastRC;
+	}
+	LOG(I) << "Reading DataStore from " << dev;
+	struct OpalDataStoreHeaderV1 DataStoreHeader;
+	cmd->reset(OPAL_UID::OPAL_DATASTORE, OPAL_METHOD::GET);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTLIST);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_TOKEN::STARTROW);
+	cmd->addToken((OPAL_TINY_ATOM)0u);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::STARTNAME);
+	cmd->addToken(OPAL_TOKEN::ENDROW);
+	cmd->addToken(sizeof(DataStoreHeader)-1);
+	cmd->addToken(OPAL_TOKEN::ENDNAME);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->addToken(OPAL_TOKEN::ENDLIST);
+	cmd->complete();
+	if ((lastRC = session->sendCommand(cmd, response)) != 0) {
+		delete cmd;
+		delete session;
+		pbafile.close();
+		return lastRC;
+	}
+	memcpy(&DataStoreHeader, response.getString(1).c_str(), sizeof(DataStoreHeader));
+
+	LOG(E) << std::to_string(DataStoreHeader.version);
+	LOG(E) << std::to_string(DataStoreHeader.content_size);
+	filepos=sizeof(DataStoreHeader);
+	eofpos=DataStoreHeader.content_size+filepos;
+
+	buffer.resize(sizeof(blockSize));
+	while (filepos<DataStoreHeader.content_size) {
+		if ((eofpos - filepos) < blockSize) {
+			blockSize = eofpos - filepos; // handle a short last block
+			buffer.resize(blockSize);
+		}
+		
+		cmd->reset(OPAL_UID::OPAL_DATASTORE, OPAL_METHOD::GET);
+		cmd->addToken(OPAL_TOKEN::STARTLIST);
+		cmd->addToken(OPAL_TOKEN::STARTLIST);
+		cmd->addToken(OPAL_TOKEN::STARTNAME);
+		cmd->addToken(OPAL_TOKEN::STARTROW);
+		cmd->addToken(filepos);
+		cmd->addToken(OPAL_TOKEN::ENDNAME);
+		cmd->addToken(OPAL_TOKEN::STARTNAME);
+		cmd->addToken(OPAL_TOKEN::ENDROW);
+		cmd->addToken(filepos+blockSize);
+		cmd->addToken(OPAL_TOKEN::ENDNAME);
+		cmd->addToken(OPAL_TOKEN::ENDLIST);
+		cmd->addToken(OPAL_TOKEN::ENDLIST);
+		cmd->complete();
+		if ((lastRC = session->sendCommand(cmd, response)) != 0) {
+			delete cmd;
+			delete session;
+			pbafile.close();
+			return lastRC;
+		}
+		filepos += blockSize;
+		pbafile.write(response.getString(1).c_str(), blockSize);
+		cout << filepos << " of " << filepos << " " << (uint16_t) (((float)filepos/(float)eofpos) * 100) << "% blk=" << blockSize << " \r";
+	}
+	cout << "\n";
+	delete cmd;
+	delete session;
+	pbafile.close();
+	LOG(I) << "DataStore  " << filename << " written to " << dev;
+	LOG(D1) << "Exiting DtaDevOpal::setDataStore()";
 	return 0;
 }
 uint8_t DtaDevOpal::loadPBA(char * password, char * filename) {

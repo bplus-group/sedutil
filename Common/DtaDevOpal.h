@@ -226,6 +226,10 @@ public:
          * @param filename the filename of the disk image
          */
 	uint8_t loadPBA(char * password, char * filename);
+        uint8_t setDataStoreReadUser(char * password, char * userid);
+	uint8_t setDataStoreWriteUser(char * password, char * userid);
+	uint8_t setDataStore(char * password, char * userid, char * filename);
+	uint8_t getDataStore(char * password, char * userid, char * filename);
         /** User command to prepare the device for management by sedutil. 
          * Specific to the SSC that the device supports
          * @param password the password that is to be assigned to the SSC master entities 

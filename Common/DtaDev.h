@@ -157,6 +157,10 @@ public:
 	 * @param filename the filename of the disk image
 	 */
 	virtual uint8_t loadPBA(char * password, char * filename) = 0;
+	virtual uint8_t setDataStoreReadUser(char * password, char * userid) = 0;
+	virtual uint8_t setDataStoreWriteUser(char * password, char * userid) = 0;
+	virtual uint8_t setDataStore(char * password, char * userid, char * filename) = 0;
+	virtual uint8_t getDataStore(char * password, char * userid, char * filename) = 0;
 	/** Change the locking state of a locking range
 	 * @param lockingrange The number of the locking range (0 = global)
 	 * @param lockingstate  the locking state to set
