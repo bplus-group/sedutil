@@ -1122,13 +1122,13 @@ uint8_t DtaDevOpal::revertTPer(char * password, uint8_t PSID, uint8_t AdminSP)
 	cmd->addToken(OPAL_TOKEN::STARTLIST);
 	cmd->addToken(OPAL_TOKEN::ENDLIST);
 	cmd->complete();
+	session->expectAbort();
 	if ((lastRC = session->sendCommand(cmd, response)) != 0) {
 		delete cmd;
 		delete session;
 		return lastRC;
 	}
 	LOG(I) << "revertTper completed successfully";
-	session->expectAbort();
 	delete cmd;
 	delete session;
 	LOG(D1) << "Exiting DtaDevOpal::revertTPer()";
