@@ -1,9 +1,9 @@
-#!/bin/bash 
+#!/bin/sh 
 set -x
-GIT=`which git`
-if [ "x"${GIT} == "x" ]; then
+GIT=$(which git)
+if [ "x"${GIT} = "x" ]; then
 	echo "#define GIT_VERSION \"tarball\""
 else
-	GITVER=`git describe --dirty`
+	GITVER=$(${GIT} describe --always --dirty)
 	echo "#define GIT_VERSION " \"$GITVER\"
 fi
